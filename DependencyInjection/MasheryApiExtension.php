@@ -16,7 +16,6 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\HttpKernel\Kernel;
-use AlexanderC\Api\Mashery\Mashery as MasheryApi;
 
 class MasheryApiExtension extends Extension
 {
@@ -28,13 +27,13 @@ class MasheryApiExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        // add the service...
-        $container->set(
-            'mashery.api',
-            MasheryApi::create(
-                $config['api_key'], $config['secret'], $config['application'],
-                $config['transport'], $config['version']
-            )
-        );
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('services.yml');
+
+        $properties = ['api_key', 'secret', 'application', 'transport', 'version'];
+
+        foreach($properties as $property) {
+            $container->setParameter('mashery_api_' . $property, $config[$property]);
+        }
     }
 } 

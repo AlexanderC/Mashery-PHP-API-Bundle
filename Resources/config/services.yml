@@ -1,0 +1,15 @@
+parameters:
+    mashery.api.class: AlexanderC\Api\Mashery\Mashery
+    mashery.api.factory.class: AlexanderC\Api\MasheryBundle\MasheryFactory
+
+services:
+    mashery.api:
+        class: %mashery.api.class%
+        factory_class: %mashery.api.factory.class%
+        factory_method: get
+        arguments:
+            - %mashery_api_api_key%
+            - %mashery_api_secret%
+            - %mashery_api_application%
+            - %mashery_api_transport%
+            - %mashery_api_version%
