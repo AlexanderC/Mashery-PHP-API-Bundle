@@ -20,7 +20,7 @@
         "alexanderc/mashery-php-api": "dev-master"
     },
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "AlexanderC\\Api\\MasheryBundle": ""
         }
     }
