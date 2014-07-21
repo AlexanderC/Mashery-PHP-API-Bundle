@@ -1,0 +1,26 @@
+{
+    "name": "alexanderc/mashery-php-api-bundle",
+    "description": "Symfony2 bundle implementation for Mashery API PHP library",
+    "license": "Apache Version 2",
+    "authors": [
+        {
+            "name": "AlexanderC",
+            "email": "self@alexanderc.me"
+        }
+    ],
+    "minimum-stability": "stable",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/AlexanderC/Mashery-PHP-API.git"
+        }
+    ],
+    "require": {
+        "alexanderc/mashery-php-api": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "AlexanderC\\Api\\MasheryBundle": ""
+        }
+    }
+}
