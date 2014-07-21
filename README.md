@@ -5,7 +5,7 @@ Bundle built for PHP API(v2) library for [Mashery](http://www.mashery.com)
 
 ***Resources:***
 
-- [API Specifications](http://support.mashery.com/docs/read/mashery_api/20)
+- [Mashery PHP Api Library](https://github.com/AlexanderC/Mashery-PHP-API)
 
 Requirements
 ============
