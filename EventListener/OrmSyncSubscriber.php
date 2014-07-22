@@ -9,6 +9,7 @@
 namespace AlexanderC\Api\MasheryBundle\EventListener;
 
 
+use AlexanderC\Api\Mashery\InternalObjectInterface;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -17,6 +18,10 @@ use AlexanderC\Api\Mashery\Mashery;
 class OrmSyncSubscriber implements EventSubscriber
 {
     use ContainerAwareTrait;
+
+    const CREATE = 0x001;
+    const UPDATE = 0x002;
+    const REMOVE = 0x003;
 
     /**
      * {@inheritdoc}
@@ -30,19 +35,69 @@ class OrmSyncSubscriber implements EventSubscriber
         ];
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function postUpdate(LifecycleEventArgs $args)
     {
-
+        $this->manageEvent($args, self::UPDATE);
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function postPersist(LifecycleEventArgs $args)
     {
-
+        $this->manageEvent($args, self::CREATE);
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function postRemove(LifecycleEventArgs $args)
     {
+        $this->manageEvent($args, self::REMOVE);
+    }
 
+    /**
+     * @param LifecycleEventArgs $args
+     * @param $eventType
+     */
+    protected function manageEvent(LifecycleEventArgs $args, $eventType)
+    {
+        $entity = $args->getEntity();
+        $entityManager = $args->getEntityManager();
+
+        switch($eventType) {
+            case self::CREATE:
+                if($this->isMasheryObject($entity)) {
+                    $this->getMashery()->create($entity);
+                    $entityManager->persist($entity);
+                    $entityManager->flush();
+                }
+                break;
+            case self::UPDATE:
+                if($this->isMasheryObject($entity)) {
+                    $this->getMashery()->update($entity);
+                    $entityManager->persist($entity);
+                    $entityManager->flush();
+                }
+                break;
+            case self::REMOVE:
+                if($this->isMasheryObject($entity)) {
+                    $this->getMashery()->delete($entity);
+                }
+                break;
+        }
+    }
+
+    /**
+     * @param object $entity
+     * @return bool
+     */
+    protected function isMasheryObject($entity)
+    {
+        return $entity instanceof InternalObjectInterface && method_exists($entity, 'getMasheryObjectId');
     }
 
     /**
