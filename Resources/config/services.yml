@@ -7,7 +7,7 @@ services:
     mashery.api:
         class: %mashery.api.class%
         factory_class: %mashery.api.factory.class%
-        factory_method: create
+        factory_method: createInstance
         arguments:
             - %mashery_api_api_key%
             - %mashery_api_secret%
