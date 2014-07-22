@@ -16,12 +16,12 @@ trait MasheryObjectTrait
      *
      * @ORM\Column(type="integer", unique=true, nullable=true, options={"comment"="Id of current object stored in mashery."})
      */
-    public $mashery_object_id;
+    protected $mashery_object_id;
 
     /**
      * @param int $mashery_object_id
      */
-    public function setMasheryObjectId($mashery_object_id)
+    final public function setMasheryObjectId($mashery_object_id)
     {
         $this->mashery_object_id = $mashery_object_id;
     }
@@ -29,7 +29,7 @@ trait MasheryObjectTrait
     /**
      * @return int
      */
-    public function getMasheryObjectId()
+    final public function getMasheryObjectId()
     {
         return $this->mashery_object_id;
     }
@@ -38,9 +38,27 @@ trait MasheryObjectTrait
      * Properties that should be synced
      *
      * @return array
+     * @throws \RuntimeException
      */
-    public function getMasherySyncProperties()
+    final public function getMasherySyncProperties()
     {
+        if(!method_exists($this, '__getMasherySyncProperties')) {
+            throw new \RuntimeException(
+                "You must implement __getMasherySyncProperties() method".
+                " instead of getMasherySyncProperties(), because it is used internally"
+            );
+        }
+
         return array_merge($this->__getMasherySyncProperties(), ['mashery_object_id' => 'id']);
+    }
+
+    /**
+     * Allow only a normal code!
+     *
+     * @return bool
+     */
+    final public function masheryUseSettersAndGetters()
+    {
+        return true;
     }
 } 

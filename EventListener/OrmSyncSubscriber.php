@@ -12,6 +12,7 @@ namespace AlexanderC\Api\MasheryBundle\EventListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use AlexanderC\Api\Mashery\Mashery;
 
 class OrmSyncSubscriber implements EventSubscriber
 {
@@ -44,5 +45,11 @@ class OrmSyncSubscriber implements EventSubscriber
 
     }
 
-
+    /**
+     * @return Mashery
+     */
+    protected function getMashery()
+    {
+        return $this->container->get('mashery.api');
+    }
 } 
