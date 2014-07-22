@@ -10,6 +10,8 @@ namespace AlexanderC\Api\MasheryBundle\EventListener;
 
 
 use AlexanderC\Api\Mashery\InternalObjectInterface;
+use AlexanderC\Api\MasheryBundle\EventListener\Exception\OrmRemoveException;
+use AlexanderC\Api\MasheryBundle\EventListener\Exception\OrmSyncException;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -61,7 +63,9 @@ class OrmSyncSubscriber implements EventSubscriber
 
     /**
      * @param LifecycleEventArgs $args
-     * @param $eventType
+     * @param int $eventType
+     * @throws Exception\OrmRemoveException
+     * @throws Exception\OrmSyncException
      */
     protected function manageEvent(LifecycleEventArgs $args, $eventType)
     {
@@ -71,21 +75,35 @@ class OrmSyncSubscriber implements EventSubscriber
         switch($eventType) {
             case self::CREATE:
                 if($this->isMasheryObject($entity)) {
-                    $this->getMashery()->create($entity);
+                    $response = $this->getMashery()->create($entity);
+
+                    if($response->isError()) {
+                        throw new OrmSyncException($response->getError());
+                    }
+
                     $entityManager->persist($entity);
                     $entityManager->flush();
                 }
                 break;
             case self::UPDATE:
                 if($this->isMasheryObject($entity)) {
-                    $this->getMashery()->update($entity);
+                    $response = $this->getMashery()->update($entity);
+
+                    if($response->isError()) {
+                        throw new OrmSyncException($response->getError());
+                    }
+
                     $entityManager->persist($entity);
                     $entityManager->flush();
                 }
                 break;
             case self::REMOVE:
                 if($this->isMasheryObject($entity)) {
-                    $this->getMashery()->delete($entity);
+                    $response = $this->getMashery()->delete($entity);
+
+                    if($response->isError()) {
+                        throw new OrmRemoveException($response->getError());
+                    }
                 }
                 break;
         }
