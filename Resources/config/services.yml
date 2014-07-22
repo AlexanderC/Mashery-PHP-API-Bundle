@@ -1,7 +1,7 @@
 parameters:
     mashery.api.class: AlexanderC\Api\Mashery\Mashery
     mashery.api.factory.class: AlexanderC\Api\Mashery\Mashery
-    mashery.api.doctrine.sync_subscriber.class: AlexanderC\Api\MasheryBundle\EventListener\DoctrineEventListener
+    mashery.api.doctrine.sync_subscriber.class: AlexanderC\Api\MasheryBundle\EventListener\OrmSyncSubscriber
 
 services:
     mashery.api:
