@@ -17,6 +17,8 @@
     ],
     "require": {
         "symfony/framework-bundle": "~2.0",
+        "doctrine/orm": "~2.2,>=2.2.3",
+        "doctrine/doctrine-bundle": "~1.2",
         "alexanderc/mashery-php-api": "dev-master"
     },
     "autoload": {

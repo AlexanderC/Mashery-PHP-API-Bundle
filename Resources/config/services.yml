@@ -1,6 +1,7 @@
 parameters:
     mashery.api.class: AlexanderC\Api\Mashery\Mashery
     mashery.api.factory.class: AlexanderC\Api\Mashery\Mashery
+    mashery.api.doctrine.sync_subscriber.class: AlexanderC\Api\MasheryBundle\EventListener\DoctrineEventListener
 
 services:
     mashery.api:
@@ -13,3 +14,11 @@ services:
             - %mashery_api_application%
             - %mashery_api_transport%
             - %mashery_api_version%
+
+    mashery.api.doctrine.sync_subscriber:
+        class: %mashery.api.doctrine.sync_subscriber.class%
+        arguments: []
+        calls:
+            - [setContainer, ["@service_container"]]
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
