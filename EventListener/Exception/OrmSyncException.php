@@ -22,6 +22,8 @@ class OrmSyncException extends OrmException
             sprintf("Error while syncing Mashery object: %s", $error->getMessage()),
             $error->getCode()
         );
+
+        $this->setErrorData($error->getData());
     }
 
 } 

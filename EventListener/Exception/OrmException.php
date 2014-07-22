@@ -11,5 +11,24 @@ namespace AlexanderC\Api\MasheryBundle\EventListener\Exception;
 
 class OrmException extends \RuntimeException
 {
+    /**
+     * @var array
+     */
+    protected $errorData;
 
+    /**
+     * @param array $errorData
+     */
+    public function setErrorData(array $errorData)
+    {
+        $this->errorData = $errorData;
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrorData()
+    {
+        return $this->errorData;
+    }
 } 
