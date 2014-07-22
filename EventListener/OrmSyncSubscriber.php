@@ -93,10 +93,10 @@ class OrmSyncSubscriber implements EventSubscriber
             case self::CREATE:
             case self::UPDATE:
                 if($this->isMasheryObject($entity)) {
-                    $response = null;
+                    $response = $this->getMashery()->validate($entity);
 
                     // verify for entity validity
-                    if(!$this->getMashery()->validate($entity, [], $response)) {
+                    if($response->isError()) {
                         throw new OrmValidationException($response->getError());
                     }
                 }
