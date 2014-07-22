@@ -12,6 +12,7 @@ namespace AlexanderC\Api\MasheryBundle\EventListener;
 use AlexanderC\Api\Mashery\InternalObjectInterface;
 use AlexanderC\Api\MasheryBundle\EventListener\Exception\OrmRemoveException;
 use AlexanderC\Api\MasheryBundle\EventListener\Exception\OrmSyncException;
+use AlexanderC\Api\MasheryBundle\EventListener\Exception\OrmValidationException;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -31,6 +32,8 @@ class OrmSyncSubscriber implements EventSubscriber
     public function getSubscribedEvents()
     {
         return [
+            'prePersist',
+            'preUpdate',
             'postPersist',
             'postUpdate',
             'postRemove'
@@ -40,9 +43,25 @@ class OrmSyncSubscriber implements EventSubscriber
     /**
      * @param LifecycleEventArgs $args
      */
+    public function preUpdate(LifecycleEventArgs $args)
+    {
+        $this->managePreEvent($args, self::UPDATE);
+    }
+
+    /**
+     * @param LifecycleEventArgs $args
+     */
+    public function prePersist(LifecycleEventArgs $args)
+    {
+        $this->managePreEvent($args, self::CREATE);
+    }
+
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function postUpdate(LifecycleEventArgs $args)
     {
-        $this->manageEvent($args, self::UPDATE);
+        $this->managePostEvent($args, self::UPDATE);
     }
 
     /**
@@ -50,7 +69,7 @@ class OrmSyncSubscriber implements EventSubscriber
      */
     public function postPersist(LifecycleEventArgs $args)
     {
-        $this->manageEvent($args, self::CREATE);
+        $this->managePostEvent($args, self::CREATE);
     }
 
     /**
@@ -58,7 +77,29 @@ class OrmSyncSubscriber implements EventSubscriber
      */
     public function postRemove(LifecycleEventArgs $args)
     {
-        $this->manageEvent($args, self::REMOVE);
+        $this->managePostEvent($args, self::REMOVE);
+    }
+
+    /**
+     * @param LifecycleEventArgs $args
+     * @param int $eventType
+     * @throws Exception\OrmValidationException
+     */
+    protected function managePreEvent(LifecycleEventArgs $args, $eventType)
+    {
+        $entity = $args->getEntity();
+
+        switch($eventType) {
+            case self::CREATE:
+            case self::UPDATE:
+                if($this->isMasheryObject($entity)) {
+                    // verify for entity validity
+                    if(!$this->getMashery()->validate($entity, [], $response)) {
+                        throw new OrmValidationException($response->getError());
+                    }
+                }
+                break;
+        }
     }
 
     /**
@@ -67,7 +108,7 @@ class OrmSyncSubscriber implements EventSubscriber
      * @throws Exception\OrmRemoveException
      * @throws Exception\OrmSyncException
      */
-    protected function manageEvent(LifecycleEventArgs $args, $eventType)
+    protected function managePostEvent(LifecycleEventArgs $args, $eventType)
     {
         $entity = $args->getEntity();
         $entityManager = $args->getEntityManager();
@@ -115,7 +156,9 @@ class OrmSyncSubscriber implements EventSubscriber
      */
     protected function isMasheryObject($entity)
     {
-        return $entity instanceof InternalObjectInterface && method_exists($entity, 'getMasheryObjectId');
+        return $entity instanceof InternalObjectInterface
+                && method_exists($entity, 'getMasheryObjectId') /* it's easier than to check for a trait */
+            ;
     }
 
     /**
