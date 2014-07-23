@@ -29,6 +29,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('version')->defaultValue('version2')->end()
                 ->scalarNode('transport')->defaultValue('curl')->end()
+                ->scalarNode('client')->defaultValue(null)->end()
                 ->scalarNode('application')->isRequired()->end()
                 ->scalarNode('api_key')->isRequired()->end()
                 ->scalarNode('secret')->isRequired()->end()

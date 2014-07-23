@@ -30,7 +30,7 @@ class MasheryApiExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
 
-        $properties = ['api_key', 'secret', 'application', 'transport', 'version'];
+        $properties = ['api_key', 'secret', 'application', 'transport', 'version', 'client'];
 
         foreach($properties as $property) {
             $container->setParameter('mashery_api_' . $property, $config[$property]);
