@@ -15,20 +15,5 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class MasheryApiBundle extends Bundle
 {
-    /**
-     * @param ContainerInterface $container
-     */
-    public function setContainer(ContainerInterface $container = null)
-    {
-        parent::setContainer($container);
-
-        $client = $container->getParameter('mashery_api_client');
-
-        if($client) {
-            /** @var Mashery $mashery */
-            $mashery = $container->get('mashery.api');
-
-            $mashery->getClient()->getTransport()->setClient($client);
-        }
-    }
+    
 } 

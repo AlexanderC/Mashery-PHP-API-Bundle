@@ -1,13 +1,15 @@
 parameters:
     mashery.api.class: AlexanderC\Api\Mashery\Mashery
-    mashery.api.factory.class: AlexanderC\Api\Mashery\Mashery
+    mashery.api.factory.class: AlexanderC\Api\MasheryBundle\MasheryFactory
     mashery.api.doctrine.sync_subscriber.class: AlexanderC\Api\MasheryBundle\EventListener\OrmSyncSubscriber
 
 services:
     mashery.api:
         class: %mashery.api.class%
         factory_class: %mashery.api.factory.class%
-        factory_method: createInstance
+        factory_method: create
+        calls:
+            - [setContainer, ["@service_container"]]
         arguments:
             - %mashery_api_api_key%
             - %mashery_api_secret%
