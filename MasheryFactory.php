@@ -15,31 +15,17 @@ use AlexanderC\Api\Mashery\Mashery;
 class MasheryFactory
 {
     /**
-     * @var object
-     */
-    protected static $container;
-
-    /**
-     * @param object $container
-     */
-    public function setContainer($container)
-    {
-        self::$container = $container;
-    }
-
-    /**
      * @return Mashery
      */
     public static function create()
     {
-        $mashery = call_user_func_array('AlexanderC\Api\Mashery\Mashery::createInstance', func_get_args());
+        $arguments = func_get_args();
+        $client = array_shift($arguments);
 
-        $client = self::$container->getParameter('mashery_api_client');
+        /** @var Mashery $mashery */
+        $mashery = call_user_func_array('AlexanderC\Api\Mashery\Mashery::createInstance', $arguments);
 
         if($client) {
-            /** @var Mashery $mashery */
-            $mashery = self::$container->get('mashery.api');
-
             $mashery->getClient()->getTransport()->setClient($client);
         }
 

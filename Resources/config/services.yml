@@ -8,9 +8,8 @@ services:
         class: %mashery.api.class%
         factory_class: %mashery.api.factory.class%
         factory_method: create
-        calls:
-            - [setContainer, ["@service_container"]]
         arguments:
+            - %mashery_api_client%
             - %mashery_api_api_key%
             - %mashery_api_secret%
             - %mashery_api_application%
