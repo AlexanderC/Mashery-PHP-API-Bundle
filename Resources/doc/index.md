@@ -24,6 +24,7 @@ Configuration
 ```yml
 # app/config/config.yml
 mashery_api:
+    client: ~               # default: alexanderc_api_call/0.1b (the string used to identify the client on Mashery side)
     version: ~              # available: version2
                             # default: version2
     transport: ~            # available: curl
