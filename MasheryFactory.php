@@ -19,7 +19,7 @@ class MasheryFactory
     /**
      * @return Mashery
      */
-    public function create()
+    public static function create()
     {
         $mashery = call_user_func_array('AlexanderC\Api\Mashery\Mashery:createInstance', func_get_args());
 
