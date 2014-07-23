@@ -21,7 +21,7 @@ class MasheryFactory
      */
     public static function create()
     {
-        $mashery = call_user_func_array('AlexanderC\Api\Mashery\Mashery:createInstance', func_get_args());
+        $mashery = call_user_func_array('AlexanderC\Api\Mashery\Mashery::createInstance', func_get_args());
 
         $client = $this->container->getParameter('mashery_api_client');
 
