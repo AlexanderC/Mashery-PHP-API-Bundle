@@ -10,16 +10,17 @@ namespace AlexanderC\Api\MasheryBundle;
 
 use AlexanderC\Api\Mashery\Mashery;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class MasheryApiBundle extends Bundle
 {
     /**
-     * {@inheritdoc}
+     * @param ContainerInterface $container
      */
-    public function build(ContainerBuilder $container)
+    public function setContainer(ContainerInterface $container = null)
     {
-        parent::build($container);
+        parent::setContainer($container);
 
         $client = $container->getParameter('mashery_api_client');
 
