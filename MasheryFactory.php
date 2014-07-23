@@ -14,7 +14,18 @@ use AlexanderC\Api\Mashery\Mashery;
 
 class MasheryFactory
 {
-    use ContainerAwareTrait;
+    /**
+     * @var object
+     */
+    protected static $container;
+
+    /**
+     * @param object $container
+     */
+    public function setContainer($container)
+    {
+        self::$container = $container;
+    }
 
     /**
      * @return Mashery
@@ -23,11 +34,11 @@ class MasheryFactory
     {
         $mashery = call_user_func_array('AlexanderC\Api\Mashery\Mashery::createInstance', func_get_args());
 
-        $client = $this->container->getParameter('mashery_api_client');
+        $client = self::$container->getParameter('mashery_api_client');
 
         if($client) {
             /** @var Mashery $mashery */
-            $mashery = $this->container->get('mashery.api');
+            $mashery = self::$container->get('mashery.api');
 
             $mashery->getClient()->getTransport()->setClient($client);
         }
