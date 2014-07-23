@@ -24,14 +24,12 @@ Configuration
 ```yml
 # app/config/config.yml
 mashery_api:
-    client: ~               # default: alexanderc_api_call/0.1b (the string used to identify the client on Mashery side)
-    version: ~              # available: version2
-                            # default: version2
-    transport: ~            # available: curl
-                            # default: curl
-    application: "mysite"   # application identified (aka site_id)
-    api_key: "123123123"    # application key
-    secret: "secrethere"    # secret token
+    client: ~                                    # default: alexanderc_api_call/0.1b (the string used to identify the client on Mashery side)
+    version: ~                                   # available: version2, default: version2
+    transport: ~                                 # available: curl, default: curl
+    application: "777"                           # application identified (aka site_id)
+    api_key: "kug324iuy3i25gi2"                  # application key
+    secret: "l2kj34o2h34o2iu3h4o2iu3h4o23iuh"    # secret token
 ```
 
 Usage
