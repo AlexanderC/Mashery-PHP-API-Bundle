@@ -131,8 +131,10 @@ class OrmSyncSubscriber implements EventSubscriber
                         throw new OrmSyncException($response->getError());
                     }
 
+                    $entity->setMasherySyncState(false);
                     $entityManager->persist($entity);
                     $entityManager->flush();
+                    $entity->setMasherySyncState(true);
                 }
                 break;
             case self::UPDATE:
@@ -143,8 +145,10 @@ class OrmSyncSubscriber implements EventSubscriber
                         throw new OrmSyncException($response->getError());
                     }
 
+                    $entity->setMasherySyncState(false);
                     $entityManager->persist($entity);
                     $entityManager->flush();
+                    $entity->setMasherySyncState(true);
                 }
                 break;
             case self::REMOVE:
