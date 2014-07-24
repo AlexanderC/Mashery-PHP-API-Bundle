@@ -12,6 +12,13 @@ namespace AlexanderC\Api\MasheryBundle\Orm;
 trait MasheryObjectTrait
 {
     /**
+     * Only if it is set to true the entity would be synced
+     *
+     * @var bool
+     */
+    protected $masherySyncState = true;
+
+    /**
      * @var int
      *
      * @ORM\Column(type="integer", unique=true, nullable=true, options={"comment"="Id of current object stored in mashery."})
@@ -60,5 +67,21 @@ trait MasheryObjectTrait
     final public function masheryUseSettersAndGetters()
     {
         return true;
+    }
+
+    /**
+     * @param boolean $masherySyncState
+     */
+    final public function setMasherySyncState($masherySyncState)
+    {
+        $this->masherySyncState = (bool) $masherySyncState;
+    }
+
+    /**
+     * @return boolean
+     */
+    final public function getMasherySyncState()
+    {
+        return $this->masherySyncState;
     }
 } 

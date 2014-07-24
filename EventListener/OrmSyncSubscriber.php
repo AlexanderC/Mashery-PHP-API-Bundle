@@ -26,6 +26,13 @@ class OrmSyncSubscriber implements EventSubscriber
     const UPDATE = 0x002;
     const REMOVE = 0x003;
 
+    const MASHERY_TRAIT = 'AlexanderC\Api\MasheryBundle\Orm\MasheryObjectTrait';
+
+    /**
+     * @var array
+     */
+    protected $usesCache = [];
+
     /**
      * {@inheritdoc}
      */
@@ -92,7 +99,7 @@ class OrmSyncSubscriber implements EventSubscriber
         switch($eventType) {
             case self::CREATE:
             case self::UPDATE:
-                if($this->isMasheryObject($entity)) {
+                if($this->isMasheryObject($entity) && $entity->get) {
                     $response = $this->getMashery()->validate($entity);
 
                     // verify for entity validity
@@ -158,9 +165,45 @@ class OrmSyncSubscriber implements EventSubscriber
      */
     protected function isMasheryObject($entity)
     {
+        $entityClass = get_class($entity);
+
+        if(!isset($this->usesCache[$entityClass])) {
+            $this->usesCache[$entityClass] = self::classUsesDeep($entityClass);
+        }
+
         return $entity instanceof InternalObjectInterface
-                && method_exists($entity, 'getMasheryObjectId') /* it's easier than to check for a trait */
-            ;
+                && in_array(self::MASHERY_TRAIT, $this->usesCache[$entityClass])
+                // disable classes that does not need to be synced
+                && true === $entity->getMasherySyncState();
+    }
+
+    /**
+     * @param string $class
+     * @return array
+     */
+    protected static function classUsesDeep($class)
+    {
+        $traits = [];
+
+        // Get traits of all parent classes
+        do {
+            $traits = array_merge(class_uses($class, true), $traits);
+        } while ($class = get_parent_class($class));
+
+        // Get traits of all parent traits
+        $traitsToSearch = $traits;
+
+        while (!empty($traitsToSearch)) {
+            $newTraits = class_uses(array_pop($traitsToSearch), true);
+            $traits = array_merge($newTraits, $traits);
+            $traitsToSearch = array_merge($newTraits, $traitsToSearch);
+        }
+
+        foreach ($traits as $trait => $same) {
+            $traits = array_merge(class_uses($trait, true), $traits);
+        }
+
+        return array_unique($traits);
     }
 
     /**
