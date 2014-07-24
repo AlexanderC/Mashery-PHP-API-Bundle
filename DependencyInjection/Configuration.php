@@ -33,6 +33,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('application')->isRequired()->end()
                 ->scalarNode('api_key')->isRequired()->end()
                 ->scalarNode('secret')->isRequired()->end()
+                ->scalarNode('sync_schemas')->isRequired()->end()
             ->end()
         ;
 

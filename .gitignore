@@ -1,8 +1,0 @@
-phpunit.xml
-Tests/autoload.php
-nbproject
-catalog.xml
-.idea
-composer.lock
-vendor/*
-!vendor/vendors.php

@@ -30,6 +30,7 @@ mashery_api:
     application: 777                             # application identified (aka site_id)
     api_key: "kug324iuy3i25gi2"                  # application key
     secret: "l2kj34o2h34o2iu3h4o2iu3h4o23iuh"    # secret token
+    sync_schemas: "%kernel.root_dir%/SyncSchemas # path where sync schemas are located
 ```
 
 Usage
