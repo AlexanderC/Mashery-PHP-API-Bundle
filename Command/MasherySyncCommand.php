@@ -93,14 +93,15 @@ class MasherySyncCommand extends ContainerAwareCommand
         $queryResponse = $this->getMashery()->query($schema['sync_query']);
 
         if($queryResponse->isError()) {
-            $output->writeln("<error>Error while syncing schema: {$queryResponse->getError()->getMessage()}</error>");
+            $output->writeln("<error>Error while syncing {$repositoryIdentifier}".
+                " schema: {$queryResponse->getError()->getMessage()}</error>");
             return;
         }
 
         $queryResult = $queryResponse->getResult();
 
         if($queryResult->getTotalItems() <= 0) {
-            $output->writeln("<info>Nothing to sync for {$entityClass}!</info>");
+            $output->writeln("<info>Nothing to sync for {$repositoryIdentifier}!</info>");
             return;
         }
 
@@ -147,7 +148,7 @@ class MasherySyncCommand extends ContainerAwareCommand
         if(isset($schema['links']) && is_array($schema['links']) && !empty($schema['links'])) {
             $links = $schema['links'];
 
-            $output->writeln("<info>Updating schema relations...</info>");
+            $output->writeln("<info>Updating {$repositoryIdentifier} relations...</info>");
 
             foreach($links as $linkInfo) {
                 list($linkEntityRepository,
