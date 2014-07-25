@@ -33,20 +33,24 @@ trait MasheryObjectTrait
     protected $mashery_object_id;
 
     /**
+     * Important!!!
+     * Override this methods in entities
+     * since doctrine is generating issues
+     * @TODO: make a patch!
+     *
      * @param int $mashery_object_id
      */
-    final public function setMasheryObjectId($mashery_object_id)
-    {
-        $this->mashery_object_id = $mashery_object_id;
-    }
+    abstract public function setMasheryObjectId($mashery_object_id);
 
     /**
+     * Important!!!
+     * Override this methods in entities
+     * since doctrine is generating issues
+     * @TODO: make a patch!
+     *
      * @return int
      */
-    final public function getMasheryObjectId()
-    {
-        return $this->mashery_object_id;
-    }
+    abstract public function getMasheryObjectId();
 
     /**
      * Properties that should be synced
