@@ -19,6 +19,13 @@ trait MasheryObjectTrait
     protected $masherySyncState = true;
 
     /**
+     * Skip object validation if set to true
+     *
+     * @var bool
+     */
+    protected $skipValidation = false;
+
+    /**
      * @var int
      *
      * @ORM\Column(type="integer", unique=true, nullable=true, options={"comment"="Id of current object stored in mashery."})
@@ -83,5 +90,21 @@ trait MasheryObjectTrait
     final public function getMasherySyncState()
     {
         return $this->masherySyncState;
+    }
+
+    /**
+     * @param boolean $skipValidation
+     */
+    final public function setSkipValidation($skipValidation)
+    {
+        $this->skipValidation = $skipValidation;
+    }
+
+    /**
+     * @return boolean
+     */
+    final public function getSkipValidation()
+    {
+        return $this->skipValidation;
     }
 } 
