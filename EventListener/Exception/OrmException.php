@@ -9,12 +9,19 @@
 namespace AlexanderC\Api\MasheryBundle\EventListener\Exception;
 
 
+use AlexanderC\Api\Mashery\InternalObjectInterface;
+
 class OrmException extends \RuntimeException
 {
     /**
      * @var array
      */
     protected $errorData;
+
+    /**
+     * @var InternalObjectInterface
+     */
+    protected $entity;
 
     /**
      * @param array $errorData
@@ -30,5 +37,21 @@ class OrmException extends \RuntimeException
     public function getErrorData()
     {
         return $this->errorData;
+    }
+
+    /**
+     * @param \AlexanderC\Api\Mashery\InternalObjectInterface $entity
+     */
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+    }
+
+    /**
+     * @return \AlexanderC\Api\Mashery\InternalObjectInterface
+     */
+    public function getEntity()
+    {
+        return $this->entity;
     }
 } 

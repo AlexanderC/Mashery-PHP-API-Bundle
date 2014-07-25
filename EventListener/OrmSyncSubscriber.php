@@ -104,7 +104,7 @@ class OrmSyncSubscriber implements EventSubscriber
 
                     // verify for entity validity
                     if($response->isError()) {
-                        throw new OrmValidationException($response->getError());
+                        throw new OrmValidationException($entity, $response->getError());
                     }
                 }
                 break;
@@ -128,7 +128,7 @@ class OrmSyncSubscriber implements EventSubscriber
                     $response = $this->getMashery()->create($entity);
 
                     if($response->isError()) {
-                        throw new OrmSyncException($response->getError());
+                        throw new OrmSyncException($entity, $response->getError());
                     }
 
                     $entity->setMasherySyncState(false);
@@ -142,7 +142,7 @@ class OrmSyncSubscriber implements EventSubscriber
                     $response = $this->getMashery()->update($entity);
 
                     if($response->isError()) {
-                        throw new OrmSyncException($response->getError());
+                        throw new OrmSyncException($entity, $response->getError());
                     }
 
                     $entity->setMasherySyncState(false);
@@ -156,7 +156,7 @@ class OrmSyncSubscriber implements EventSubscriber
                     $response = $this->getMashery()->delete($entity);
 
                     if($response->isError()) {
-                        throw new OrmRemoveException($response->getError());
+                        throw new OrmRemoveException($entity, $response->getError());
                     }
                 }
                 break;
