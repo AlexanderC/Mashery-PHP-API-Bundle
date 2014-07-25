@@ -9,6 +9,7 @@ namespace AlexanderC\Api\MasheryBundle\Command;
 
 
 use AlexanderC\Api\Mashery\Helpers\ObjectSyncer;
+use AlexanderC\Api\Mashery\MsrQL;
 use AlexanderC\Api\Mashery\QueryResult;
 use AlexanderC\Api\Mashery\QueryResponse;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -77,10 +78,17 @@ class MasherySyncCommand extends ContainerAwareCommand
         }
     }
 
+    /**
+     * @param array $schema
+     * @param OutputInterface $output
+     */
     protected function syncSchema(array $schema, OutputInterface $output)
     {
         $em = $this->getContainer()->get('doctrine')->getManager();
         $entityClass = $schema['entity'];
+        $repositoryIdentifier = $schema['repository'];
+        $repository = $em->getRepository($repositoryIdentifier);
+        $identifierProperty = $schema['identifier'];
 
         $queryResponse = $this->getMashery()->query($schema['sync_query']);
 
@@ -99,10 +107,6 @@ class MasherySyncCommand extends ContainerAwareCommand
         $output->writeln("<info>Start syncing {$queryResult->getTotalItems()} items...</info>");
 
         foreach($queryResult->getItems() as $item) {
-            $repositoryIdentifier = $schema['repository'];
-            $repository = $em->getRepository($repositoryIdentifier);
-
-            $identifierProperty = $schema['identifier'];
             $identifier = $item[$identifierProperty];
 
             $output->writeln("<info>Start syncing item #{$identifier}</info>");
@@ -136,6 +140,89 @@ class MasherySyncCommand extends ContainerAwareCommand
             // allow object syncing
             $object->setMasherySyncState(true);
         }
+
+        $entities = $repository->findAll();
+
+        // sync relations
+        if(isset($schema['links']) && is_array($schema['links']) && !empty($schema['links'])) {
+            $links = $schema['links'];
+
+            $output->writeln("<info>Updating schema relations...</info>");
+
+            foreach($links as $linkInfo) {
+                list($linkEntityRepository,
+                    $linkEntityTable, $linkingEntityTable,
+                    $linkedEntitySetter, $linkingEntitySetter) = $this->parseLink($linkInfo);
+
+                foreach($entities as $entity) {
+                    $query = MsrQL::create()
+                        ->select("id")
+                        ->from($linkEntityTable)
+                        ->requireRelated($linkingEntityTable, sprintf("id = %d", $entity->getMasheryObjectId()))
+                    ;
+
+                    $queryResponse = $this->getMashery()->query($query);
+
+                    if($queryResponse->isError()) {
+                        $output->writeln("<error>Error while linking {$repositoryIdentifier} ".
+                            "to {$linkEntityRepository}: {$queryResponse->getError()->getMessage()}</error>");
+                        continue;
+                    }
+
+                    $queryResult = $queryResponse->getResult();
+
+                    if($queryResult->getTotalItems() <= 0) {
+                        $output->writeln(
+                            "<info>Nothing to link found between {$repositoryIdentifier} and {$linkEntityRepository}!</info>"
+                        );
+                        continue;
+                    }
+
+                    foreach($queryResult->getItems() as $linkInfo) {
+                        $linkEntityId = $linkInfo['id'];
+
+                        $linkEntity = $em->getRepository($linkEntityRepository)->findOneBy([
+                            'mashery_object_id' => $linkEntityId
+                        ]);
+
+                        if(null === $linkEntity) {
+                            $output->writeln(
+                                "<error>No entity found for {$linkEntityRepository} #{$linkEntityId}</error>"
+                            );
+                            continue;
+                        }
+
+                        $output->writeln("<info>Linking {$linkEntityRepository} #{$linkEntityId}".
+                            " with {$repositoryIdentifier}!</info>");
+
+                        call_user_func([$entity, $linkingEntitySetter], $linkEntity);
+                        call_user_func([$linkEntity, $linkedEntitySetter], $entity);
+
+                        $em->persist($entity);
+                        $em->persist($linkEntity);
+                        $em->flush();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param string $linkInfo
+     * @return array
+     * @throws \RuntimeException
+     */
+    protected function & parseLink($linkInfo)
+    {
+        $regex = '#^\s*link\s+(\S+)\s+as\s+(\w+)\s+using\s+(\w+)\s+updated\s+by\s+(\w+)\s+reversed\s+by\s+(\w+)\s*$#ui';
+
+        if(!preg_match($regex, $linkInfo, $matches)) {
+            throw new \RuntimeException("Invalid link exception: {$linkInfo}");
+        }
+
+        array_shift($matches);
+
+        return $matches;
     }
 
     /**
