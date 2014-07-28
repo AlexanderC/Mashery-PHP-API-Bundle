@@ -36,14 +36,22 @@ class OrmSyncSubscriber implements EventSubscriber
     protected $usesCache = [];
 
     /**
-     * @var array
+     * @var \SplObjectStorage
      */
-    protected $skipEntityUpdateStack = [];
+    protected $skipEntityUpdateStack;
 
     /**
      * @var bool
      */
     protected $listen = true;
+
+    /**
+     * {@inheritdoc}
+     */
+    function __construct()
+    {
+        $this->skipEntityUpdateStack = new \SplObjectStorage();
+    }
 
     /**
      * @return $this
@@ -153,7 +161,7 @@ class OrmSyncSubscriber implements EventSubscriber
                     }
 
                     if(true === $skipExecution) {
-                        $this->skipEntityUpdateStack[spl_object_hash($entity)] = $entity;
+                        $this->skipEntityUpdateStack->attach($entity);
                     }
                 }
 
@@ -207,10 +215,8 @@ class OrmSyncSubscriber implements EventSubscriber
                 }
                 break;
             case self::UPDATE:
-                $entityHash = spl_object_hash($entity);
-
                 if($this->isMasheryObject($entity)
-                    && !($unsetEntityNoUpdate = isset($this->skipEntityUpdateStack[$entityHash]))) {
+                    && !($hasToDetachEntity = $this->skipEntityUpdateStack->contains($entity))) {
 
                     $response = $this->getMashery()->update($entity);
 
@@ -227,8 +233,8 @@ class OrmSyncSubscriber implements EventSubscriber
                     break;
                 }
 
-                if(true === $unsetEntityNoUpdate) {
-                    unset($this->skipEntityUpdateStack[$entityHash]);
+                if($hasToDetachEntity) {
+                    $this->skipEntityUpdateStack->detach($entity);
                 }
                 break;
             case self::REMOVE:
