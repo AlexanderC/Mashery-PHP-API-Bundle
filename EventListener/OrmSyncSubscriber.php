@@ -41,6 +41,31 @@ class OrmSyncSubscriber implements EventSubscriber
     protected $skipEntityUpdateStack = [];
 
     /**
+     * @var bool
+     */
+    protected $listen = true;
+
+    /**
+     * @return $this
+     */
+    public function stop()
+    {
+        $this->listen = false;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function resume()
+    {
+        $this->listen = true;
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getSubscribedEvents()
@@ -101,6 +126,10 @@ class OrmSyncSubscriber implements EventSubscriber
      */
     protected function managePreEvent(LifecycleEventArgs $args, $eventType)
     {
+        if(false === $this->listen) {
+            return;
+        }
+
         $entity = $args->getEntity();
 
         $isMasheryObject = $this->isMasheryObject($entity);
@@ -153,6 +182,10 @@ class OrmSyncSubscriber implements EventSubscriber
      */
     protected function managePostEvent(LifecycleEventArgs $args, $eventType)
     {
+        if(false === $this->listen) {
+            return;
+        }
+
         $entity = $args->getEntity();
         $entityManager = $args->getEntityManager();
 
