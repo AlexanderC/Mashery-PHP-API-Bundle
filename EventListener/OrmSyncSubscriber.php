@@ -9,11 +9,13 @@
 namespace AlexanderC\Api\MasheryBundle\EventListener;
 
 
+use AlexanderC\Api\Mashery\Helpers\ObjectSyncer;
 use AlexanderC\Api\Mashery\InternalObjectInterface;
 use AlexanderC\Api\MasheryBundle\EventListener\Exception\OrmRemoveException;
 use AlexanderC\Api\MasheryBundle\EventListener\Exception\OrmSyncException;
 use AlexanderC\Api\MasheryBundle\EventListener\Exception\OrmValidationException;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\Common\Persistence\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use AlexanderC\Api\Mashery\Mashery;
@@ -32,6 +34,11 @@ class OrmSyncSubscriber implements EventSubscriber
      * @var array
      */
     protected $usesCache = [];
+
+    /**
+     * @var array
+     */
+    protected $skipEntityUpdateStack = [];
 
     /**
      * {@inheritdoc}
@@ -96,13 +103,37 @@ class OrmSyncSubscriber implements EventSubscriber
     {
         $entity = $args->getEntity();
 
+        $isMasheryObject = $this->isMasheryObject($entity);
         $skipUpdateFields = false;
+        $skipExecution = false;
 
         switch($eventType) {
             case self::UPDATE:
+                /** @var PreUpdateEventArgs $args */
+                $args;
+
+                if($isMasheryObject) {
+                    $skipExecution = true;
+                    $entityFields = ObjectSyncer::getOrmPropertiesMap($entity, true);
+
+                    foreach($entityFields as $field) {
+                        if($args->hasChangedField($field)) {
+                            $skipExecution = false;
+                            break;
+                        }
+                    }
+
+                    if(true === $skipExecution) {
+                        $this->skipEntityUpdateStack[spl_object_hash($entity)] = $entity;
+                    }
+                }
+
                 $skipUpdateFields = true;
             case self::CREATE:
-                if($this->isMasheryObject($entity) && false === $entity->getSkipValidation()) {
+                if($isMasheryObject
+                    && false === $skipExecution
+                    && false === $entity->getSkipValidation()) {
+
                     $response = $this->getMashery()->validate($entity, $skipUpdateFields);
 
                     // verify for entity validity
@@ -134,24 +165,41 @@ class OrmSyncSubscriber implements EventSubscriber
                         throw new OrmSyncException($entity, $response->getError());
                     }
 
+                    $entity->setSkipValidation(true);
                     $entity->setMasherySyncState(false);
+
                     $entityManager->persist($entity);
                     $entityManager->flush();
+
                     $entity->setMasherySyncState(true);
+                    $entity->setSkipValidation(false);
                 }
                 break;
             case self::UPDATE:
-                if($this->isMasheryObject($entity)) {
+                $entityHash = spl_object_hash($entity);
+
+                if($this->isMasheryObject($entity)
+                    && !($unsetEntityNoUpdate = isset($this->skipEntityUpdateStack[$entityHash]))) {
+
                     $response = $this->getMashery()->update($entity);
 
                     if($response->isError()) {
                         throw new OrmSyncException($entity, $response->getError());
                     }
 
+                    $entity->setSkipValidation(true);
                     $entity->setMasherySyncState(false);
+
                     $entityManager->persist($entity);
                     $entityManager->flush();
+
                     $entity->setMasherySyncState(true);
+                    $entity->setSkipValidation(false);
+                    break;
+                }
+
+                if(true === $unsetEntityNoUpdate) {
+                    unset($this->skipEntityUpdateStack[$entityHash]);
                 }
                 break;
             case self::REMOVE:
@@ -179,9 +227,9 @@ class OrmSyncSubscriber implements EventSubscriber
         }
 
         return $entity instanceof InternalObjectInterface
-                && in_array(self::MASHERY_TRAIT, $this->usesCache[$entityClass])
-                // disable classes that does not need to be synced
-                && true === $entity->getMasherySyncState();
+                    && in_array(self::MASHERY_TRAIT, $this->usesCache[$entityClass])
+                    // disable classes that does not need to be synced
+                    && true === $entity->getMasherySyncState();
     }
 
     /**
