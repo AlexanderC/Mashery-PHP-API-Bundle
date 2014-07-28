@@ -165,14 +165,12 @@ class OrmSyncSubscriber implements EventSubscriber
                         throw new OrmSyncException($entity, $response->getError());
                     }
 
-                    $entity->setSkipValidation(true);
-                    $entity->setMasherySyncState(false);
+                    $this->disableSync($entity);
 
                     $entityManager->persist($entity);
                     $entityManager->flush();
 
-                    $entity->setMasherySyncState(true);
-                    $entity->setSkipValidation(false);
+                    $this->enableSync($entity);
                 }
                 break;
             case self::UPDATE:
@@ -187,14 +185,12 @@ class OrmSyncSubscriber implements EventSubscriber
                         throw new OrmSyncException($entity, $response->getError());
                     }
 
-                    $entity->setSkipValidation(true);
-                    $entity->setMasherySyncState(false);
+                    $this->disableSync($entity);
 
                     $entityManager->persist($entity);
                     $entityManager->flush();
 
-                    $entity->setMasherySyncState(true);
-                    $entity->setSkipValidation(false);
+                    $this->enableSync($entity);
                     break;
                 }
 
@@ -212,6 +208,24 @@ class OrmSyncSubscriber implements EventSubscriber
                 }
                 break;
         }
+    }
+
+    /**
+     * @param object $entity
+     */
+    protected function disableSync($entity)
+    {
+        $entity->setSkipValidation(true);
+        $entity->setMasherySyncState(false);
+    }
+
+    /**
+     * @param object $entity
+     */
+    protected function enableSync($entity)
+    {
+        $entity->setMasherySyncState(true);
+        $entity->setSkipValidation(false);
     }
 
     /**
