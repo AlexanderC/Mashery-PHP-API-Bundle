@@ -96,11 +96,14 @@ class OrmSyncSubscriber implements EventSubscriber
     {
         $entity = $args->getEntity();
 
+        $skipUpdateFields = false;
+
         switch($eventType) {
-            case self::CREATE:
             case self::UPDATE:
+                $skipUpdateFields = true;
+            case self::CREATE:
                 if($this->isMasheryObject($entity) && false === $entity->getSkipValidation()) {
-                    $response = $this->getMashery()->validate($entity);
+                    $response = $this->getMashery()->validate($entity, $skipUpdateFields);
 
                     // verify for entity validity
                     if($response->isError()) {
