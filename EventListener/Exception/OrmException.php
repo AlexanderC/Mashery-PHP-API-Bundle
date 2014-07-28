@@ -14,7 +14,7 @@ use AlexanderC\Api\Mashery\InternalObjectInterface;
 class OrmException extends \RuntimeException
 {
     /**
-     * @var array
+     * @var array|null
      */
     protected $errorData;
 
@@ -26,7 +26,7 @@ class OrmException extends \RuntimeException
     /**
      * @param array $errorData
      */
-    public function setErrorData(array $errorData)
+    public function setErrorData($errorData)
     {
         $this->errorData = $errorData;
     }
