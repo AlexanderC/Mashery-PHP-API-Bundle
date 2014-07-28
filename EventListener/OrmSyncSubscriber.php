@@ -143,7 +143,7 @@ class OrmSyncSubscriber implements EventSubscriber
 
                 if($isMasheryObject) {
                     $skipExecution = true;
-                    $entityFields = ObjectSyncer::getOrmPropertiesMap($entity, true);
+                    $entityFields = ObjectSyncer::getObjectPropertiesMap($entity, true);
 
                     foreach($entityFields as $field) {
                         if($args->hasChangedField($field)) {
