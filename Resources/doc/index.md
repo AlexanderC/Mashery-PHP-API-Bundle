@@ -21,7 +21,7 @@ public function registerBundles()
 Configuration
 =============
 
-```yml
+```yaml
 # app/config/config.yml
 mashery_api:
     client: ~                                    # default: alexanderc_api_call/0.1b (the string used to identify the client on Mashery side)
@@ -43,4 +43,19 @@ $this->get('mashery.api')->...;
 ```
 
 For usage examples visit [Mashery-PHP-API/README.md](https://github.com/AlexanderC/Mashery-PHP-API/blob/master/README.md)
+
+Sync configuration example
+==========================
+
+```yaml
+# app/SyncSchemas/plans.yml
+entity: HRMData\AppBundle\Entity\Plan
+repository: HRMDataAppBundle:Plan
+sync_query: SELECT id FROM plans
+identifier: id
+links:
+  - Link HRMDataAppBundle:Package as package using plan updated by addPlan reversed by setPackage
+  # resolves into: SELECT id FROM packages REQUIRE RELATED plans WITH id = %plan_id%
+  # flush relations: $package->addPlan($plan) and $plan->setPackage($package)
+```
 
