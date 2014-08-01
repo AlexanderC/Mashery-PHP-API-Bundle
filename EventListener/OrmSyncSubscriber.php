@@ -54,6 +54,14 @@ class OrmSyncSubscriber implements EventSubscriber
     }
 
     /**
+     * @return bool
+     */
+    public function isListening()
+    {
+        return $this->listen;
+    }
+
+    /**
      * @return $this
      */
     public function stop()
