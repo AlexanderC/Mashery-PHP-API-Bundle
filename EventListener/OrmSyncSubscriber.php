@@ -19,6 +19,7 @@ use Doctrine\Common\Persistence\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use AlexanderC\Api\Mashery\Mashery;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class OrmSyncSubscriber implements EventSubscriber
 {
@@ -52,7 +53,16 @@ class OrmSyncSubscriber implements EventSubscriber
     {
         $this->skipEntityUpdateStack = new \SplObjectStorage();
 
-        $this->listen = $this->container->getParameter('mashery_api_sync_state');
+
+    }
+
+    /**
+     * @param ContainerInterface $container
+     */
+    public function setContainer(ContainerInterface $container = null)
+    {
+        $this->listen = $container->getParameter('mashery_api_sync_state');
+        $this->container = $container;
     }
 
     /**
