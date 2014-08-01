@@ -51,6 +51,8 @@ class OrmSyncSubscriber implements EventSubscriber
     function __construct()
     {
         $this->skipEntityUpdateStack = new \SplObjectStorage();
+
+        $this->listen = $this->container->getParameter('mashery_api_sync_state');
     }
 
     /**
