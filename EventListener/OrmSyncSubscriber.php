@@ -52,8 +52,6 @@ class OrmSyncSubscriber implements EventSubscriber
     function __construct()
     {
         $this->skipEntityUpdateStack = new \SplObjectStorage();
-
-
     }
 
     /**
@@ -235,6 +233,8 @@ class OrmSyncSubscriber implements EventSubscriber
                 }
                 break;
             case self::UPDATE:
+                $hasToDetachEntity = false;
+                
                 if($this->isMasheryObject($entity)
                     && !($hasToDetachEntity = $this->skipEntityUpdateStack->contains($entity))) {
 
