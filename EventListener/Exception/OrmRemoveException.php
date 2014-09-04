@@ -10,6 +10,7 @@ namespace AlexanderC\Api\MasheryBundle\EventListener\Exception;
 
 
 use AlexanderC\Api\Mashery\ErrorObject;
+use AlexanderC\Api\Mashery\InternalObjectInterface;
 
 class OrmRemoveException extends OrmException
 {
